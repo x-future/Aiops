@@ -12,17 +12,14 @@ docker-compose.yml详解
 
 ```yaml
 version: '3'
-
 services:
   web:
     build: .
     depends_on:
       - db
       - redis
-
   redis:
     image: redis
-
   db:
     image: postgres
 ```

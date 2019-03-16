@@ -1,34 +1,36 @@
 docker 部署php +mysql
 
-```
+在宿主机上安装php,mysql,nginx 生成配置文件
+
+```shell
 yum remove docker  docker-common docker-selinux docker-engine
 ```
 
-```
+```shell
 yum install -y yum-utils device-mapper-persistent-data lvm2
 ```
 
-```
+```shell
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 ```
 
-```
+```shell
 yum list docker-ce --showduplicates | sort -r
 ```
 
-```
+```shell
 yum install docker-ce
 ```
 
-```
+```shell
 systemctl start docker
 ```
 
-```
+```shell
 systemctl enable docker
 ```
 
-```
+```shell
 docker version
 ```
 
@@ -36,7 +38,7 @@ docker version
 
 阿里docker镜像加速器
 
-```
+```shell
 sudo mkdir -p /etc/docker
 sudo tee /etc/docker/daemon.json <<-'EOF'
 {
@@ -49,67 +51,66 @@ sudo systemctl restart docker
 
 安装docker-compose
 
-```
+```shell
 sudo curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 ```
 
-```
+```shell
 chmod +x /usr/local/bin/docker-compose
 ```
 
-安装php7.
+安装php7.2
 
-rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm   
-
+```shell
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
-
 yum -y install php72w php72w-cli php72w-common php72w-devel php72w-embedded php72w-fpm php72w-gd php72w-mbstring php72w-mysqlnd php72w-opcache php72w-pdo php72w-xml
-
-
-
 ```
+
+
+
+```shell
 rpm -Uvhhttp://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
 ```
 
-```
+```shell
 yum install mysql-community-server
 ```
 
-```
+```shell
 rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
 ```
 
-```s
+```shell
 yum -y install nginx
 ```
 
-```
+```shell
 yum -y install redis
 ```
 
 部署lnmp环境
 
-lnmp
+lnmp/
 ├── conf
 │   ├── mysql
+│   │   └── my.cnf
 │   ├── nginx
 │   │   ├── conf.d
-│   │   │   ├── default.conf
-│   │   │   └── default.conf.new
-│   │   ├── nginx.conf
-│   │   └── nginx.conf.0315
+│   │   │   └── default.conf
+│   │   └── nginx.conf
 │   └── php
 │       ├── php-fpm.conf
-│       ├── php-fpm.conf.new
-│       ├── php.ini
-│       └── php.ini.new
+│       └── php.ini
 ├── docker-compose.yml
-├── docker-compose.yml.bak
 ├── log
+│   ├── mysql
+│   │   └── mysqld.log
 │   ├── nginx
 │   │   ├── access.log
 │   │   └── error.log
 │   └── php
+├── mysql
 ├── php
 │   └── php56
 │       └── Dockerfile
@@ -250,9 +251,150 @@ server {
  
 ```
 
-https://blog.csdn.net/u011781521/article/details/80464826 继续搭建mysql
+继续搭建mysql
+
+编辑 conf/mysql/my.cnf
+
+```shell
+[client]
+port = 3306
+default-character-set = utf8mb4
+ 
+[mysqld]
+port = 3306
+bind-address = 0.0.0.0
+skip-name-resolve
+skip-external-locking
+skip-host-cache
+ 
+datadir   = /var/lib/mysql/
+pid-file  = /var/run/mysqld/mysqld.pid
+socket    = /var/run/mysqld/mysqld.sock
+log-error = /var/log/mysql/error.log
+ 
+default_authentication_plugin = mysql_native_password
+ 
+secure_file_priv = ""
+ 
+# Slow query log configuration.
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+ 
+# general_log = on
+# general_log_file = /data/log/mysql/mysql.log
+ 
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links = 0
+ 
+# User is ignored when systemd is used (fedora >= 15).
+user = mysql
+ 
+# http://dev.mysql.com/doc/refman/5.5/en/performance-schema.html
+;performance_schema
+ 
+# Memory settings.
+key_buffer_size = 1G
+max_allowed_packet = 100M
+table_open_cache = 2048
+sort_buffer_size = 1M
+read_buffer_size = 1M
+read_rnd_buffer_size = 4M
+myisam_sort_buffer_size = 64M
+thread_stack = 192K
+thread_cache_size = 286
+query_cache_limit = 32M
+query_cache_size = 64M
+max_connections = 1500
+max_connect_errors = 1000
+# Other settings.
+wait_timeout = 28800
+ 
+# InnoDB settings.
+innodb_file_per_table = 1
+innodb_buffer_pool_size = 2G
+innodb_log_file_size = 512M
+innodb_log_buffer_size = 8M
+innodb_flush_log_at_trx_commit = 1
+innodb_lock_wait_timeout = 50
+ 
+[mysqldump]
+quick
+max_allowed_packet = 64M
+ 
+# Recommended in standard MySQL setup
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+ 
+[mysql]
+no-auto-rehash
+default-character-set = utf8mb4
+ 
+[mysqld_safe]
+pid-file = /var/run/mysqld/mysqld.pid
+ 
+```
+
+修改docker-compose.yml
+
+```yaml
+[root@docker-01 lnmp]# cat docker-compose.yml 
+version: "3"
+services:
+  nginx:
+    restart: always
+    image: docker.io/nginx
+    container_name: project1_nginx
+    ports:
+      - "80:80"
+      - "444:443"
+    links:
+      - "php56"
+    volumes:
+      - ./conf/nginx/conf.d/:/etc/nginx/conf.d/:ro
+      - ./conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./log/nginx/:/var/log/nginx/:rw
+      - ./www/:/var/www/html/:rw
+    networks:
+      - net-php
+  php56:
+    restart: always
+    image: project1_php
+    container_name: project1_php
+    expose:
+      - "9000"
+    volumes:
+      - ./conf/php/php.ini:/etc/php/php.ini:ro
+      - ./conf/php/php-fpm.conf:/etc/php/php-fpm.conf:ro
+      - ./log/php/:/var/log/php/:rw
+      - ./www/:/var/www/html/:rw
+    networks:
+      - net-php
 
 
+  mysql:
+    image: mysql:5.7
+    container_name: my-mysql
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./conf/mysql/my.cnf:/etc/mysql/my.cnf:ro
+      - ./mysql/:/var/lib/mysql/:rw
+    environment:
+      MYSQL_USER: "root"
+      MYSQL_PASSWORD: "root"
+      MYSQL_ROOT_PASSWORD: "root"
+    networks:
+      - net-mysql
 
+ 
+networks:
+  net-php:
+  net-mysql:
+```
 
+运行
+
+```shell
+docker-compose up -d --force-recreate
+```
 
