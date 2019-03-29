@@ -65,3 +65,17 @@ usermod -g docker jenkins
 sudo docker run -itd -p 9090:8080 -p 50000:50000 --name jenkins --privileged=true  -u root -v /home/jenkins:/var/jenkins_home jenkins:latest
 ```
 
+安装docker-compose
+
+```
+sudo curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+```
+
+> ```
+> sudo chmod +x /usr/local/bin/docker-compose
+> ```
+>
+> ```
+> sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+> ```
+
