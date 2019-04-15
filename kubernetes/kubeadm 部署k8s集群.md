@@ -125,12 +125,33 @@ DynamicKubeletConfig=true|false (当前为BETA状态 - 缺省值=false)
 
 *注：如果中途出错可以用kubeadm reset来进行回退*
 
-kubeadm join 192.168.40.151:6443 --token erwn8o.h18uccxfz1em5zrk \
+ `kubeadm token list kubeadm token create`
+
+kubeadm join 192.168.40.151:6443 --token 5lbgw4.jxzphdvx9kus4x6h \
     --discovery-token-ca-cert-hash sha256:417475de9da5859dbfb4f416079e7b6fdf3a54090db6f97de3096e67b28e5620
 
 自动补全功能
 
 echo "source <(kubectl completion bash)" >> ~/.bashrc
 
+导出镜像
 
+#k8s-master
 
+   $ sudo docker images
+
+   $ sudo docker save da86e6ba6ca1 f0fad859c909 1d3d7afd77d1 > node.tar
+
+导入镜像，打tag
+
+ #k8s-node1
+
+   $ sudo docker load < /tmp/node.tar
+
+   $ sudo docker tag da86e6ba6ca1 k8s.gcr.io/pause:3.1
+
+节点无法创建pod可以用kubeadm reset 删除节点上文件，卸载kubelet 重新安装，删除docker 镜像
+
+生成新token重新 kubeadm join
+
+​	
