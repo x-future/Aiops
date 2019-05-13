@@ -6,6 +6,22 @@ docker pull registry.cn-hangzhou.aliyuncs.com/imooc/gitlab-ce:latest
 
 部署Jenkins
 
+did
+
+<https://www.qikqiak.com/k8s-book/docs/37.Jenkins%20Pipeline.html>
+
+<https://getintodevops.com/blog/the-simple-way-to-run-docker-in-docker-for-ci>
+
+<https://container-solutions.com/running-docker-in-jenkins-in-docker/>
+
+<https://forums.docker.com/t/using-docker-in-a-dockerized-jenkins-container/322/5>
+
+<https://jenkins.io/doc/book/pipeline/docker/>
+
+<https://www.qikqiak.com/k8s-book/docs/52.Prometheus%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8.html>
+
+
+
 去掉JENKINS里面的CSRF Protection
 
 授权策略允许匿名读请求
