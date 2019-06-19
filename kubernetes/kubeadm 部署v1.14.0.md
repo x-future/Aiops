@@ -34,7 +34,7 @@ modprobe br_netfilter
 
 wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo
 
-cat > /etc/yum.repos.d/kubernetes.repo << EOF
+sudo cat > /etc/yum.repos.d/kubernetes.repo << EOF
 [kubernetes]
 name=Kubernetes
 baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
@@ -65,14 +65,14 @@ $ sudo yum remove docker \
 $ sudo yum install -y yum-utils \
   device-mapper-persistent-data \
   lvm2
-  yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
   查看docker版本：
 
 sudo yum list docker-ce.x86_64 --showduplicates | sort -r
 ```
 
 ```
-$ sudo yum install docker-ce 
+$ sudo yum install docker-ce -y
 ```
 
 安装kubeadm kubectl kubelet 

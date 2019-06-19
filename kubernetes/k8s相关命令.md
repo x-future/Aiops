@@ -7,12 +7,33 @@ kubectl api-versions #查看各个api 版本
 kubectl explain pod #查看每个资源内容
 kubectl create -f ./pod.json #通过pod.json文件创建一个pod
 kubectl run nginx --image=nginx --replicas=5 #启动nginx实例，设置副本数5 可以加--dry-run只是打印而不时间运行
+kubectl create deployment nginx --dry-run -o yaml --image nginx #生成yaml文件
 kubectl edit svc/docker-registry #编辑svc
 kubectl get configmap special-config -o go-template='{{.data}}' #查看ConfigMap的内容
 kubectl get nodes --show-labels #查看标签
 kubectl delete rc --cascade=false #删除RC不删除pod
 kubectl expose rc nginx --port=80 --target-port=8000 #为RC的nginx创建service，并通过Service的80端口转发至容器的8000端口上。
 kubectl expose -f nginx-controller.yaml --port=80 --target-port=8000
+source <(kubectl completion base) #自动补全功能
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+kubectl config view # Show Merged kubeconfig settings.
+kubectl config view -o jsonpath='{.users[].name}'    # get a list of users
+kubectl config get-contexts                          # display list of contexts 
+kubectl config current-context			               # display the current-context
+kubectl config use-context my-cluster-name           # set the default context to my-cluster-name
+# add a new cluster to your kubeconf that supports basic auth
+kubectl config set-credentials kubeuser/foo.kubernetes.com --username=kubeuser --password=kubepassword
+
+# permanently save the namespace for all subsequent kubectl commands in that context.
+kubectl config set-context --current --namespace=ggckad-s2
+
+# set a context utilizing a specific username and namespace.
+kubectl config set-context gce --user=cluster-admin --namespace=foo \
+  && kubectl config use-context gce
+ 
+kubectl config unset users.foo                       # delete user foo
+
+
 
 #更新升级命令集
 升级deployment
